@@ -27,7 +27,7 @@ val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
 # Train the model
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = Classifier(choice_features_size).to(device)
+model = Classifier(num_choices, choice_features_size).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 

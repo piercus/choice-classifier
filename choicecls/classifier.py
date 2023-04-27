@@ -3,7 +3,7 @@ import torchvision.models as models
 import torch.nn.functional as F
 import torch
 
-from .query_head import QueryHead
+from .query_attention_head import QueryAttentionHead
 
 class Net(nn.Module):
     def __init__(self, num_img_ftrs):
@@ -22,17 +22,18 @@ class Net(nn.Module):
         return x
 
 class Classifier(nn.Module):
-    def __init__(self, choice_features_size, choice_encoding_size=4,num_img_ftrs=128, num_heads=1):
+    def __init__(self, num_choices, choice_features_size, choice_encoding_size=4,num_img_ftrs=128, num_heads=1):
         super(Classifier, self).__init__()
         self.choice_features_size = choice_features_size
         self.choice_encoding_size = choice_encoding_size
         self.num_img_ftrs = num_img_ftrs
+        self.num_choices = num_choices
 
         # Image feature extraction using ResNet
         self.net = Net(num_img_ftrs)
         # Choice processing using MLP
         self.choice_mlp = nn.Linear(self.choice_features_size, self.choice_encoding_size)
-        self.query = QueryHead(dim_context=num_img_ftrs, dim_query=self.choice_encoding_size)
+        self.query = QueryAttentionHead(num_choices = self.num_choices, dim_query=num_img_ftrs, dim_key=self.choice_encoding_size)
 
     def forward(self, image, choices):
         # Extract image features
